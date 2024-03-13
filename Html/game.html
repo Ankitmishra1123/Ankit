@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        .dice {
+            font-size: 24px;
+            margin: 20px;
+        }
+        .guess-input {
+            width: 100px;
+            padding: 5px;
+        }
+        .result {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dice Guessing Game</h1>
+    <p>Player 1, roll the dice:</p>
+    <div class="dice" id="dice">?</div>
+    <input type="number" class="guess-input" id="guess" placeholder="Guess (1-8)">
+    <button onclick="checkGuess()">Submit Guess</button>
+    <p class="result" id="result"></p>
+    <img src="download.png">
+
+    <script>
+        const diceElement = document.getElementById('dice');
+        const guessInput = document.getElementById('guess');
+        const resultElement = document.getElementById('result');
+
+        function rollDice() {
+            const randomNumber = Math.floor(Math.random() * 8) + 1;
+            diceElement.innerText = randomNumber;
+            return randomNumber;
+        }
+
+        function checkGuess() {
+            const guessedNumber = parseInt(guessInput.value);
+            const rolledNumber = rollDice();
+
+            if (guessedNumber === rolledNumber) {
+                resultElement.innerText = 'Congratulations! You win one star!';
+            } else {
+                resultElement.innerText = 'Try again!';
+            }
+        }
+    </script>
+</body>
+</html>
