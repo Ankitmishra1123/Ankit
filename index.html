@@ -8,34 +8,125 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f9f9f9;
+            background-image: url('Dice1.png'); /* Add background image */
+            background-size: cover; /* Ensure the image covers the entire background */
+            background-color: #333; /* Dark background */
+            color: #fff; /* White font color for better visibility */
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin-top: 50px;
+            font-size: 36px;
+            animation: glow 2s ease-in-out infinite alternate; /* Add glow animation */
+        }
+        h2 {
+            font-size: 20px;
+            margin-bottom: 50px;
+            animation: move 2s ease-in-out infinite alternate; /* Add move animation */
         }
         .dice {
-            font-size: 24px;
+            font-size: 72px;
             margin: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: blink 0.5s infinite alternate; /* Add blink animation */
         }
         .guess-input {
             width: 100px;
-            padding: 5px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 2px solid #ff5050; /* Bright red */
+            margin-bottom: 20px;
+            color: #333; /* Dark gray */
+            background-color: #fff; /* White background for input */
+        }
+        .guess-input:focus {
+            outline: none;
+            border-color: #ff5050; /* Bright red */
         }
         .result {
             font-weight: bold;
+            font-size: 24px;
+            margin-top: 30px;
+            animation: colorchange 5s infinite; /* Add colorchange animation */
+        }
+        button {
+            background-color: #ff5050; /* Bright red */
+            color: #fff; /* White */
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            animation: colorblink 1s infinite alternate; /* Add colorblink animation */
+        }
+        button:hover {
+            background-color: #ff6666; /* Light red on hover */
+        }
+
+        /* Define animations */
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #ff5050, 0 0 20px #ff5050, 0 0 30px #ff5050;
+            }
+            to {
+                text-shadow: 0 0 20px #ff5050, 0 0 30px #ff5050, 0 0 40px #ff5050;
+            }
+        }
+        @keyframes move {
+            0% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(10px);
+            }
+        }
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.5;
+            }
+        }
+        @keyframes colorchange {
+            0% {
+                color: #ffcc00; /* Vibrant yellow */
+            }
+            50% {
+                color: #ff5050; /* Bright red */
+            }
+            100% {
+                color: #ffcc00; /* Vibrant yellow */
+            }
+        }
+        @keyframes colorblink {
+            0% {
+                background-color: #ff5050; /* Bright red */
+            }
+            100% {
+                background-color: #ffcc00; /* Vibrant yellow */
+            }
         }
     </style>
 </head>
 <body>
     <h1>Dice Guessing Game</h1>
+    <h2>Feeling lucky? Roll the dice and test your fate on our thrilling guessing game! You have 3 attempts.</h2>
     <p>Player 1, roll the dice:</p>
     <div class="dice" id="dice">?</div>
     <input type="number" class="guess-input" id="guess" placeholder="Guess (1-8)">
+    <br>
     <button onclick="checkGuess()">Submit Guess</button>
     <p class="result" id="result"></p>
-    <img src="download.png">
-
+    
     <script>
         const diceElement = document.getElementById('dice');
         const guessInput = document.getElementById('guess');
         const resultElement = document.getElementById('result');
+        let attempts = 0;
 
         function rollDice() {
             const randomNumber = Math.floor(Math.random() * 8) + 1;
@@ -44,13 +135,35 @@
         }
 
         function checkGuess() {
+            if (attempts >= 3) {
+                resultElement.innerText = 'You have reached the maximum number of attempts!';
+                guessInput.disabled = true;
+                setTimeout(() => {
+                    location.reload(); // Reload the page after 2 seconds
+                }, 2000);
+                return;
+            }
+
             const guessedNumber = parseInt(guessInput.value);
             const rolledNumber = rollDice();
+            attempts++;
 
             if (guessedNumber === rolledNumber) {
-                resultElement.innerText = 'Congratulations! You win one star!';
+                resultElement.innerText = '🎉 Congratulations! You win one star! 🌟';
+                guessInput.disabled = true;
+                setTimeout(() => {
+                    location.reload(); // Reload the page after 2 seconds
+                }, 2000);
             } else {
-                resultElement.innerText = 'Try again!';
+                if (attempts < 3) {
+                    resultElement.innerText = `Oops! Try again! You have ${3 - attempts} attempts left.`;
+                } else {
+                    resultElement.innerText = 'Sorry! You have used all your attempts. Better luck next time!';
+                    guessInput.disabled = true;
+                    setTimeout(() => {
+                        location.reload(); // Reload the page after 2 seconds
+                    }, 2000);
+                }
             }
         }
     </script>
