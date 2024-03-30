@@ -29,7 +29,7 @@
             font-size: 72px;
             margin: 20px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            animation: blink 0.5s infinite alternate; /* Add blink animation */
+            color: blue; /* Change dice number color to blue */
         }
         .guess-input {
             width: 100px;
@@ -38,8 +38,9 @@
             border-radius: 5px;
             border: 2px solid #ff5050; /* Bright red */
             margin-bottom: 20px;
-            color: #333; /* Dark gray */
+            color: blue; /* Change guess number color to blue */
             background-color: #fff; /* White background for input */
+            box-shadow: 0 0 10px blue; /* Highlight input */
         }
         .guess-input:focus {
             outline: none;
@@ -83,14 +84,6 @@
                 transform: translateY(10px);
             }
         }
-        @keyframes blink {
-            0% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0.5;
-            }
-        }
         @keyframes colorchange {
             0% {
                 color: #ffcc00; /* Vibrant yellow */
@@ -115,48 +108,83 @@
 <body>
     <h1>Dice Guessing Game</h1>
     <h2>Feeling lucky? Roll the dice and test your fate on our thrilling guessing game! You have 3 attempts.</h2>
-    <p>Player 1, roll the dice:</p>
-    <div class="dice" id="dice">?</div>
-    <input type="number" class="guess-input" id="guess" placeholder="Guess (1-8)">
-    <br>
-    <button onclick="checkGuess()">Submit Guess</button>
-    <p class="result" id="result"></p>
+    <div id="game-container">
+        <div id="level1">
+            <p class="level-info" style="color: blue;">🌟 Welcome to Level 1 - Guess a number between 1 and 8 🌟</p>
+            <p>Player 1, roll the dice:</p>
+            <div class="dice" id="dice">?</div>
+            <input type="number" class="guess-input" id="guess" placeholder="Guess (1-8)">
+            <br>
+            <button onclick="checkGuess(8, 'level2', 'guess', 'dice')">Submit Guess</button>
+        </div>
+        <div id="level2" style="display: none;">
+            <p class="level-info" style="color: blue;">🌟 Welcome to Level 2 - Guess a number between 1 and 16 🌟</p>
+            <p>Player 1, roll the dice:</p>
+            <div class="dice" id="dice2">?</div>
+            <input type="number" class="guess-input" id="guess2" placeholder="Guess (1-16)">
+            <br>
+            <button onclick="checkGuess(16, 'level3', 'guess2', 'dice2')">Submit Guess</button>
+        </div>
+        <div id="level3" style="display: none;">
+            <p class="level-info" style="color: blue;">🌟 Welcome to Level 3 - Guess a number between 1 and 24 🌟</p>
+            <p>Player 1, roll the dice:</p>
+            <div class="dice" id="dice3">?</div>
+            <input type="number" class="guess-input" id="guess3" placeholder="Guess (1-24)">
+            <br>
+            <button onclick="checkGuess(24, 'end', 'guess3', 'dice3')">Submit Guess</button>
+        </div>
+        <p class="result" id="result"></p>
+    </div>
+
+    <!-- Space for High Scorer -->
+    <div id="high-scorer">
+        <h3>High Scorer</h3>
+        <p>No high scorer yet!</p>
+    </div>
+    
+    <!-- Google Sheet Link -->
+    <p>Click <a href="#">here</a> to view the Google Sheet.</p>
     
     <script>
-        const diceElement = document.getElementById('dice');
-        const guessInput = document.getElementById('guess');
+        const gameContainer = document.getElementById('game-container');
         const resultElement = document.getElementById('result');
-        let attempts = 0;
+        let currentLevel = 'level1';
+        let attemptsLevel1 = 0;
+        let attemptsLevel2 = 0;
 
-        function rollDice() {
-            const randomNumber = Math.floor(Math.random() * 8) + 1;
-            diceElement.innerText = randomNumber;
+        function rollDice(max, diceId) {
+            const randomNumber = Math.floor(Math.random() * max) + 1;
+            document.getElementById(diceId).innerText = randomNumber; // Display rolled number
             return randomNumber;
         }
 
-        function checkGuess() {
-            if (attempts >= 3) {
-                resultElement.innerText = 'You have reached the maximum number of attempts!';
-                guessInput.disabled = true;
-                setTimeout(() => {
-                    location.reload(); // Reload the page after 2 seconds
-                }, 2000);
-                return;
+        function checkGuess(max, nextLevel, guessInputId, diceId) {
+            const guessInput = document.getElementById(guessInputId);
+            const diceElement = document.getElementById(diceId);
+
+            let attempts;
+            if (nextLevel === 'level2') {
+                attempts = attemptsLevel1;
+            } else if (nextLevel === 'level3') {
+                attempts = attemptsLevel2;
             }
 
             const guessedNumber = parseInt(guessInput.value);
-            const rolledNumber = rollDice();
+            const rolledNumber = rollDice(max, diceId);
             attempts++;
 
             if (guessedNumber === rolledNumber) {
-                resultElement.innerText = '🎉 Congratulations! You win one star! 🌟';
+                resultElement.innerText = `🎉 Congratulations! You win one star! 🌟`;
                 guessInput.disabled = true;
                 setTimeout(() => {
-                    location.reload(); // Reload the page after 2 seconds
+                    currentLevel = nextLevel;
+                    document.getElementById(currentLevel).style.display = 'block';
+                    document.getElementById(`level${parseInt(currentLevel.slice(-1)) - 1}`).style.display = 'none';
                 }, 2000);
             } else {
-                if (attempts < 3) {
-                    resultElement.innerText = `Oops! Try again! You have ${3 - attempts} attempts left.`;
+                const remainingAttempts = 3 - attempts;
+                if (remainingAttempts > 0) {
+                    resultElement.innerText = `Oops! Try again! You have ${remainingAttempts} attempts left.`;
                 } else {
                     resultElement.innerText = 'Sorry! You have used all your attempts. Better luck next time!';
                     guessInput.disabled = true;
@@ -164,6 +192,12 @@
                         location.reload(); // Reload the page after 2 seconds
                     }, 2000);
                 }
+            }
+
+            if (nextLevel === 'level2') {
+                attemptsLevel1 = attempts;
+            } else if (nextLevel === 'level3') {
+                attemptsLevel2 = attempts;
             }
         }
     </script>
